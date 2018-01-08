@@ -60,7 +60,7 @@ function VideoProvider(_playerId, _playerConfig, mediaElement) {
             VideoEvents.progress.call(_this);
             checkStaleStream();
         },
-        
+
         timeupdate() {
             if (_positionBeforeSeek !== _videotag.currentTime) {
                 _setPositionBeforeSeek(_videotag.currentTime);
@@ -398,7 +398,7 @@ function VideoProvider(_playerId, _playerConfig, mediaElement) {
                 objectFit: ''
             });
             _currentQuality = -1;
-            // Don't call load in iE9/10 and check for load in PhantomJS
+            // Don't call load in iE9/10
             if (!Browser.msie && 'load' in _videotag) {
                 _videotag.load();
             }
@@ -448,7 +448,7 @@ function VideoProvider(_playerId, _playerConfig, mediaElement) {
     this.init = function(item) {
         _setLevels(item.sources);
         const source = _levels[_currentQuality];
-        _androidHls = isAndroidHls(source);        
+        _androidHls = isAndroidHls(source);
         if (_androidHls) {
             // Playback rate is broken on Android HLS
             _this.supportsPlaybackRate = false;
@@ -476,7 +476,7 @@ function VideoProvider(_playerId, _playerConfig, mediaElement) {
     this.load = function(item) {
         _setLevels(item.sources);
         _completeLoad(item.starttime || 0, item.duration || 0);
-        this.setupSideloadedTracks(item.tracks);        
+        this.setupSideloadedTracks(item.tracks);
     };
 
     this.play = function() {
