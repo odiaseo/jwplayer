@@ -124,7 +124,7 @@ const UI = function (elem, options) {
     elem.addEventListener('keydown', keyHandler);
     if (options.useFocus) {
         elem.addEventListener('focus', overHandler);
-        elem.addEventListener('blur', outHandler);
+        elem.addEventListener('blur', blurHandler);
     }
 
     // overHandler and outHandler not assigned in touch situations
@@ -143,9 +143,13 @@ const UI = function (elem, options) {
     function outHandler(evt) {
         // elementFromPoint to handle an issue where setPointerCapture is causing a pointerout event
         if (_useMouseEvents || (_supportsPointerEvents && evt.pointerType !== 'touch' &&
-            !elem.contains(document.elementFromPoint(evt.x, evt.y)))) {
+                ('x' in evt && !elem.contains(document.elementFromPoint(evt.x, evt.y))))) {
             triggerEvent(OUT, evt);
         }
+    }
+
+    function blurHandler(evt) {
+        triggerEvent(OUT, evt);
     }
 
     function keyHandler(evt) {
@@ -314,7 +318,7 @@ const UI = function (elem, options) {
 
         if (options.useFocus) {
             elem.removeEventListener('focus', overHandler);
-            elem.removeEventListener('blur', outHandler);
+            elem.removeEventListener('blur', blurHandler);
         }
     };
 
