@@ -1,7 +1,7 @@
 import Item from 'playlist/item';
 import ProvidersSupported from 'providers/providers-supported';
 import registerProvider from 'providers/providers-register';
-import { module as ControlsModule } from 'controller/controls-loader';
+import { ControlsLoader } from 'controller/controls-loader';
 import { resolved } from 'polyfills/promise';
 
 let bundlePromise = null;
@@ -66,77 +66,62 @@ export function requiresProvider(model, providerName) {
 }
 
 function loadControlsPolyfillHtml5Bundle() {
-    bundleContainsProviders.html5 = true;
-    return require.ensure([
-        'controller/controller',
-        'view/controls/controls',
-        'intersection-observer',
-        'providers/html5'
-    ], function (require) {
-        // These modules should be required in this order
-        require('intersection-observer');
-        const CoreMixin = require('controller/controller').default;
-        ControlsModule.controls = require('view/controls/controls').default;
-        registerProvider(require('providers/html5').default);
-        return CoreMixin;
-    }, chunkLoadErrorHandler, 'jwplayer.core.controls.polyfills.html5');
+    return import(
+        /* webpackChunkName: "jwplayer.core.controls.polyfills.html5" */
+        'bundles/core.controls.polyfills.html5'
+    ).then(module => {
+        ControlsLoader.controls = module.controls;
+        registerProvider(module.html5);
+        return module.CoreMixin;
+    }).catch(chunkLoadErrorHandler);
 }
 
 function loadControlsHtml5Bundle() {
-    bundleContainsProviders.html5 = true;
-    return require.ensure([
-        'controller/controller',
-        'view/controls/controls',
-        'providers/html5'
-    ], function (require) {
-        const CoreMixin = require('controller/controller').default;
-        ControlsModule.controls = require('view/controls/controls').default;
-        registerProvider(require('providers/html5').default);
-        return CoreMixin;
-    }, chunkLoadErrorHandler, 'jwplayer.core.controls.html5');
+    return import(
+        /* webpackChunkName: "jwplayer.core.controls.html5" */
+        'bundles/core.controls.html5'
+    ).then(module => {
+        ControlsLoader.controls = module.controls;
+        registerProvider(module.html5);
+        return module.CoreMixin;
+    }).catch(chunkLoadErrorHandler);
 }
 
 function loadControlsPolyfillBundle() {
-    return require.ensure([
-        'controller/controller',
-        'view/controls/controls',
-        'intersection-observer'
-    ], function (require) {
-        require('intersection-observer');
-        const CoreMixin = require('controller/controller').default;
-        ControlsModule.controls = require('view/controls/controls').default;
-        return CoreMixin;
-    }, chunkLoadErrorHandler, 'jwplayer.core.controls.polyfills');
+    return import(
+        /* webpackChunkName: "jwplayer.core.controls.polyfills" */
+        'bundles/core.controls.polyfills'
+    ).then(module => {
+        ControlsLoader.controls = module.controls;
+        return module.CoreMixin;
+    }).catch(chunkLoadErrorHandler);
 }
 
 function loadControlsBundle() {
-    return require.ensure([
-        'controller/controller',
-        'view/controls/controls'
-    ], function (require) {
-        const CoreMixin = require('controller/controller').default;
-        ControlsModule.controls = require('view/controls/controls').default;
-        return CoreMixin;
-    }, chunkLoadErrorHandler, 'jwplayer.core.controls');
+    return import(
+        /* webpackChunkName: "jwplayer.core.controls" */
+        'bundles/core.controls'
+    ).then(module => {
+        ControlsLoader.controls = module.controls;
+        return module.CoreMixin;
+    }).catch(chunkLoadErrorHandler);
 }
 
 function loadCore() {
     return loadIntersectionObserverIfNeeded().then(() => {
-        return require.ensure([
+        return import(
+            /* webpackChunkName: "jwplayer.core" */
             'controller/controller'
-        ], function (require) {
-            return require('controller/controller').default;
-        }, chunkLoadErrorHandler, 'jwplayer.core');
+        ).then(module => module.default).catch(chunkLoadErrorHandler);
     });
 }
 
 function loadIntersectionObserverIfNeeded() {
     if (requiresPolyfills()) {
-        return require.ensure([
+        return import(
+            /* webpackChunkName: "polyfills.intersection-observer" */
             'intersection-observer'
-        ], function (require) {
-            return require('intersection-observer');
-        }, chunkLoadErrorHandler, 'polyfills.intersection-observer');
+        ).catch(chunkLoadErrorHandler);
     }
     return resolved;
 }

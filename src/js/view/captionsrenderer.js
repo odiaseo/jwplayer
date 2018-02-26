@@ -330,9 +330,12 @@ const CaptionsRenderer = function (viewModel) {
     }
 
     function loadWebVttPolyfill() {
-        return require.ensure(['polyfills/webvtt'], function (require) {
-            _WebVTT = require('polyfills/webvtt').default;
-        }, chunkLoadErrorHandler, 'polyfills.webvtt');
+        return import(
+            /* webpackChunkName: "polyfills.webvtt" */
+            'polyfills/webvtt'
+        ).then(module => {
+            _WebVTT = module.default;
+        }).catch(chunkLoadErrorHandler);
     }
 
     _model.on('change:playlistItem', function () {

@@ -10,11 +10,14 @@ function Providers(config) {
 
 export const Loaders = {
     html5: function() {
-        return require.ensure(['providers/html5'], function(require) {
-            const provider = require('providers/html5').default;
+        return import(
+            /* webpackChunkName: "provider.html5" */
+            'providers/html5'
+        ).then(module => {
+            const provider = module.default;
             registerProvider(provider);
             return provider;
-        }, chunkLoadErrorHandler, 'provider.html5');
+        }).catch(chunkLoadErrorHandler);
     }
 };
 

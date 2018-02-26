@@ -2,18 +2,21 @@ import { chunkLoadErrorHandler } from '../api/core-loader';
 
 let controlsPromise = null;
 
-export const module = {};
+export const ControlsLoader = {};
 
 export function load() {
     if (!controlsPromise) {
-        controlsPromise = require.ensure(['view/controls/controls'], function (require) {
-            const ControlsModule = require('view/controls/controls').default;
-            module.controls = ControlsModule;
+        controlsPromise = import(
+            /* webpackChunkName: "jwplayer.controls" */
+            'view/controls/controls'
+        ).then(module => {
+            const ControlsModule = module.default;
+            ControlsLoader.controls = ControlsModule;
             return ControlsModule;
-        }, function() {
+        }).catch(error => {
             controlsPromise = null;
-            chunkLoadErrorHandler();
-        }, 'jwplayer.controls');
+            chunkLoadErrorHandler(error);
+        });
     }
     return controlsPromise;
 }

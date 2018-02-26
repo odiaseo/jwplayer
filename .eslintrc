@@ -18,6 +18,7 @@
     },
     "extends": "eslint:recommended",
     "plugins": [
+        "import",
         "no-for-of-loops"
     ],
     "rules": {
